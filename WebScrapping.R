@@ -4,17 +4,17 @@ library(dplyr)
 library(openxlsx)
 library(stringr)
 
-#' Sanatize string
+#' Sanitize string
 #'
-#' @param str - string that will be sanatized
+#' @param str - string that will be sanitize
 #'
 #' @return string that has been trimmed if the input is empty or invalid will return '--'
 #' @export
 #'
-#' @examples sanatize_str(" TEST ")
-#' @examples sanatize_str(character())
+#' @examples sanitize_str(" TEST ")
+#' @examples sanitize_str(character())
 #' Trim spaces and set a default value on null values
-sanatize_str <- function (str) {
+sanitize_str <- function (str) {
   if(is.null(str) || length(str) == 0) {
     str <- "--"
   }
@@ -37,24 +37,32 @@ for (x in 1:2) {
   page <- read_html("page.html", encoding = "utf-8")
 
   # Reading and saving data from ads
-  description <- sanatize_str(page %>% html_elements(".property-card__title") %>% html_text())
-  address <- sanatize_str(page %>% html_elements("span.property-card__address") %>% html_text())
-  price <- sanatize_str(page %>% html_elements(".js-property-card__price-small") %>% html_text())
-  area <- sanatize_str(page %>% html_elements("span.property-card__detail-area") %>% html_text())
-  bedrooms <- sanatize_str(page %>% html_elements(".property-card_detail-room span.property-card_detail-value") %>% html_text())
-  toilets <- sanatize_str(page %>% html_elements(".property-card_detail-bathroom span.property-card_detail-value") %>% html_text())
-  garage <- sanatize_str(page %>% html_elements(".property-card_detail-garage span.property-card_detail-value") %>% html_text())
+  description <- sanitize_str(page %>% html_elements(".property-card__title") %>% html_text())
+  address <- sanitize_str(page %>% html_elements("span.property-card__address") %>% html_text())
+  price <- sanitize_str(page %>% html_elements(".js-property-card__price-small") %>% html_text())
+  area <- sanitize_str(page %>% html_elements("span.property-card__detail-area") %>% html_text())
+  bedrooms <- sanitize_str(page %>% html_elements(".property-card_detail-room span.property-card_detail-value") %>% html_text())
+  toilets <- sanitize_str(page %>% html_elements(".property-card_detail-bathroom span.property-card_detail-value") %>% html_text())
+  garage <- sanitize_str(page %>% html_elements(".property-card_detail-garage span.property-card_detail-value") %>% html_text())
 
   # Entering the ads and extracting info from the ads page
   ads_links <- page %>% html_nodes("a.property-card__content-link") %>% html_attr("href") %>% paste0("https://www.vivareal.com.br", .)
+  #' Title
+  #'
+  #' @param ads_link 
+  #'
+  #' @return
+  #' @export
+  #'
+  #' @examples
   get_internal_info <- function(ads_link) {
     download.file(ads_link, destfile = "ads_page.html", quiet=TRUE)
     ads_page <- read_html("ads_page.html", encoding="utf-8")
 
     # Info from the ads
-    suite <- ads_page %>% html_nodes("small") %>% html_text2() %>% unlist() %>% sanatize_str()
-    condo <- ads_page %>% html_nodes("span.price__list-value.condominium") %>% html_text() %>% unlist() %>% sanatize_str()
-    characteristics <- ads_page %>% html_nodes("ul.amenities__list") %>% html_text() %>% sanatize_str() %>% gsub("      ","|",.)
+    suite <- ads_page %>% html_nodes("small") %>% html_text2() %>% unlist() %>% sanitize_str()
+    condo <- ads_page %>% html_nodes("span.price__list-value.condominium") %>% html_text() %>% unlist() %>% sanitize_str()
+    characteristics <- ads_page %>% html_nodes("ul.amenities__list") %>% html_text() %>% sanitize_str() %>% gsub("      ","|",.)
 
     c(suite, condo, characteristics)
   }

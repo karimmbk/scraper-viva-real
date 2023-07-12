@@ -13,6 +13,7 @@ library(stringr)
 #'
 #' @examples sanatize_str(" TEST ")
 #' @examples sanatize_str(character())
+#' Trim spaces and set a default value on null values
 sanatize_str <- function (str) {
   if(is.null(str) || length(str) == 0) {
     str <- "--"
@@ -52,6 +53,7 @@ for (x in 1:2) {
     c(suite, condo, characteristics)
   }
 
+  # Data frame with info inside of ads
   details <- sapply(ads_links, FUN = get_internal_info, USE.NAMES = FALSE)
   table_details <- t(details) %>% as_tibble() %>% setNames(c("suite", "condo", "characteristics"))
 

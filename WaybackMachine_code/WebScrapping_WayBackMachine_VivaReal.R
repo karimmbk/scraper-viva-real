@@ -22,21 +22,15 @@ sanitize_str <- function (str) {
 }
 
 # URL from the page we gonna run the web scrapping
-days_urls_2018 <- read_html("Wayback Machine 2018.html", encoding = "utf-8") %>% html_nodes("div.calendar-day a") %>% html_attr("href")
-# days_urls_2019 <- read_html("Wayback Machine 2019.html", encoding = "utf-8") %>% html_nodes("div.calendar-day a") %>% html_attr("href")
-# days_urls_2020 <- read_html("Wayback Machine 2020.html", encoding = "utf-8") %>% html_nodes("div.calendar-day a") %>% html_attr("href")
-# days_urls_2021 <- read_html("Wayback Machine 2021.html", encoding = "utf-8") %>% html_nodes("div.calendar-day a") %>% html_attr("href")
-# days_urls_2022 <- read_html("Wayback Machine 2022.html", encoding = "utf-8") %>% html_nodes("div.calendar-day a") %>% html_attr("href")
-# days_urls_2023 <- read_html("Wayback Machine 2023.html", encoding = "utf-8") %>% html_nodes("div.calendar-day a") %>% html_attr("href")
-
+days_urls <- read_html("Wayback Machine 2022.html", encoding = "utf-8") %>% html_nodes("div.calendar-day a") %>% html_attr("href")
 
 # Empty data frame
 WayBack_2018_2023 <- data.frame()
 
 # Doing the pagination
-for (x in 1:length(days_urls_2018)) {
+for (x in seq_along(days_urls)) {
   # Command to read the link
-  link <- days_urls_2018[x]
+  link <- days_urls[x]
   page <- read_html(link, enconding = "utf-8")
 
   # Reading and saving data from ads
@@ -44,12 +38,12 @@ for (x in 1:length(days_urls_2018)) {
   address <- sanitize_str(page %>% html_elements("span.property-card__address") %>% html_text())
   price <- sanitize_str(page %>% html_elements(".js-property-card__price-small") %>% html_text())
   area <- sanitize_str(page %>% html_elements("span.property-card__detail-area") %>% html_text())
-  bedrooms <- sanitize_str(page %>% html_elements(".property-card_detail-room span.property-card_detail-value") %>% html_text())
-  toilets <- sanitize_str(page %>% html_elements(".property-card_detail-bathroom span.property-card_detail-value") %>% html_text())
-  garage <- sanitize_str(page %>% html_elements(".property-card_detail-garage span.property-card_detail-value") %>% html_text())
+  bedrooms <- sanitize_str(page %>% html_elements(".property-card__detail-room span.property-card__detail-value") %>% html_text())
+  toilets <- sanitize_str(page %>% html_elements(".property-card__detail-bathroom span.property-card__detail-value") %>% html_text())
+  garage <- sanitize_str(page %>% html_elements(".property-card__detail-garage span.property-card__detail-value") %>% html_text())
 
   # Entering the ads and extracting info from the ads page
-  ads_links <- page %>% html_nodes("a.property-card__content-link") %>% html_attr("href") %>% paste0(link, .)
+  ads_links <- page %>% html_nodes("a.property-card__content-link") %>% html_attr("href") %>% paste0("https://web.archive.org", .)
   #' Get Internal Info
   #'
   #' @param ads_link 
@@ -59,8 +53,7 @@ for (x in 1:length(days_urls_2018)) {
   #'
   #' @examples
   get_internal_info <- function(ads_link) {
-    download.file(ads_link, destfile = "ads_page.html", quiet=TRUE)
-    ads_page <- read_html("ads_page.html", encoding="utf-8")
+    ads_page <- read_html(ads_link, encoding="utf-8")
 
     # Info from the ads
     suite <- ads_page %>% html_nodes("small") %>% html_text2() %>% unlist() %>% sanitize_str()
@@ -71,16 +64,16 @@ for (x in 1:length(days_urls_2018)) {
   }
 
   # Data frame with info inside of ads
-  details <- sapply(ads_links, FUN = get_internal_info, USE.NAMES = FALSE)
-  table_details <- t(details) %>% as_tibble() %>% setNames(c("suite", "condo", "characteristics"))
+  # details <- sapply(ads_links, FUN = get_internal_info, USE.NAMES = FALSE)
+  # table_details <- t(details) %>% as_tibble() %>% setNames(c("suite", "condo", "characteristics"))
 
   # Making a matrix with the info extracted from the page
-  WayBack_2018_2023 <- rbind(WayBack_2018_2023, data.frame(description, address, price, area, bedrooms, toilets, garage, table_details))
+  WayBack_2018_2023 <- rbind(WayBack_2018_2023, data.frame(link, description, address, price, area, bedrooms, toilets, garage))
 
   # # Finding the link of the next page (pagination)
-  # counter <- x + 1
+  counter <- x + 1
   # link <- paste0(link, "?pagina=", counter)
-  # print(paste("Page", counter))
+  print(paste("Page", counter))
 }
 
 # Export the data frame as Excel file

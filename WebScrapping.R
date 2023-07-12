@@ -22,7 +22,12 @@ sanatize_str <- function (str) {
 }
 
 # URL from the page we gonna run the web scrapping
-link <- "https://www.vivareal.com.br/venda/sp/sao-paulo/"
+link <- "https://www.vivareal.com.br/venda/sp/sao-paulo/zone-norte/"
+# link <- "https://www.vivareal.com.br/venda/sp/sao-paulo/zone-leste/"
+# link <- "https://www.vivareal.com.br/venda/sp/sao-paulo/zone-sul/"
+# link <- "https://www.vivareal.com.br/venda/sp/sao-paulo/zone-oeste/"
+
+# Empty data frame
 ads_2023_07 <- data.frame()
 
 # Doing the pagination
@@ -46,6 +51,7 @@ for (x in 1:2) {
     download.file(ads_link, destfile = "ads_page.html", quiet=TRUE)
     ads_page <- read_html("ads_page.html", encoding="utf-8")
 
+    # Info from the ads
     suite <- ads_page %>% html_nodes("small") %>% html_text2() %>% unlist() %>% sanatize_str()
     condo <- ads_page %>% html_nodes("span.price__list-value.condominium") %>% html_text() %>% unlist() %>% sanatize_str()
     characteristics <- ads_page %>% html_nodes("ul.amenities__list") %>% html_text() %>% sanatize_str() %>% gsub("      ","|",.)
@@ -67,4 +73,4 @@ for (x in 1:2) {
 }
 
 # Export the data frame as Excel file
-write.xlsx(ads_2023_07, "~/Documents/VivaReal_07_2023v2_venda.xlsx")
+write.xlsx(ads_2023_07, "~/Documents/VivaReal_07_2023_venda.xlsx")

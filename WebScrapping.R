@@ -47,11 +47,11 @@ for (x in 1:2) {
 
   # Entering the ads and extracting info from the ads page
   ads_links <- page %>% html_nodes("a.property-card__content-link") %>% html_attr("href") %>% paste0("https://www.vivareal.com.br", .)
-  #' Title
+  #' Get Internal Info
   #'
   #' @param ads_link 
   #'
-  #' @return
+  #' @return Information inside a advertisement, in this case "suite", "condo" and "charct."
   #' @export
   #'
   #' @examples
